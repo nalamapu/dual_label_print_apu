@@ -233,7 +233,7 @@ html, body {
     box-sizing: border-box;
 }
 .spine-call-line {
-    font-size: 9pt;
+    font-size: 12pt;            /* Change the value to adjust font size of call number */
     font-weight: bold;
     line-height: 1.15;
     word-break: break-word;
