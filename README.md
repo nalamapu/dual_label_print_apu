@@ -2,6 +2,7 @@
 
 **Author:** Nurul Alam Apu
 **Website:** [www.slimsbd.com](https://www.slimsbd.com)
+**URL:** https://github.com/nalamapu/dual_label_print_apu/
 **WhatsApp:** +8801674066064
 **Email:** slimsbd@gmail.com
 
