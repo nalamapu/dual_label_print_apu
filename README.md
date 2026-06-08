@@ -30,13 +30,13 @@ slims9_bulian/
 
 2. Log in to the SLiMS admin panel.
 3. Go to **System → Plugin Manager** and activate **Dual Label Print**.
-4. The menu item **"Dual Label Print"** will appear under the **Bibliography** module.
+4. The menu item **"Dual Label Print - Apu"** will appear under the **Bibliography** module.
 
 ---
 
 ## Usage
 
-1. Open **Bibliography → Dual Label Print**.
+1. Open **Bibliography → Dual Label Print - Apu**.
 2. Search by accession number, title, or author in the search box.
 3. Tick the checkboxes next to the items you want and click **"Add To Print Queue"**.
 4. Repeat for any additional items (up to 50 at once).
