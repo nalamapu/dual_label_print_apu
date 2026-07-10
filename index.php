@@ -389,7 +389,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'print') {
                     class="btn btn-default notAJAX">
                     <?php echo __('Clear Print Queue'); ?>
                 </a>
-
                 <!-- 🔧 FIX APPLIED: target="blindSubmit" allows the backend to return Colorbox JS correctly -->
                 <a target="blindSubmit"
                     href="<?php echo $_SERVER['PHP_SELF'] . '?' . dlp_http_query(['action' => 'print']); ?>"
