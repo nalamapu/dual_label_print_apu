@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Dual Label Print - Apu
  *
@@ -16,7 +17,7 @@
  */
 
 // ── Bootstrap ────────────────────────────────────────────────────────────────
-defined('INDEX_AUTH') OR die('Direct access not allowed!');
+defined('INDEX_AUTH') or die('Direct access not allowed!');
 
 // IP based access limitation
 require LIB . 'ip_based_access.inc.php';
@@ -36,7 +37,8 @@ if (!$can_read) {
 }
 
 // ── Helper: preserve plugin container query params (especially 'id') ────────
-function dlp_http_query(array $merge = []): string {
+function dlp_http_query(array $merge = []): string
+{
     $base = $_GET ?? [];
     unset($base['action'], $base['keywords']);
     return http_build_query(array_merge($base, $merge));
@@ -47,13 +49,15 @@ $max_print   = 50;
 $session_key = 'dlp_apu_dual_labels';
 
 // ── Helper: current queue count ──────────────────────────────────────────────
-function dlp_queue_count(): int {
+function dlp_queue_count(): int
+{
     global $session_key;
     return isset($_SESSION[$session_key]) ? count($_SESSION[$session_key]) : 0;
 }
 
 // ── Helper: JS queue counter update ─────────────────────────────────────────
-function dlp_update_counter(): void {
+function dlp_update_counter(): void
+{
     echo '<script>top.document.getElementById("dlpQueueCount").innerHTML = "' . dlp_queue_count() . '";</script>';
 }
 
@@ -62,7 +66,9 @@ function dlp_update_counter(): void {
 // ═══════════════════════════════════════════════════════════════════════════
 if (isset($_POST['itemCode'], $_POST['itemAction']) && !empty($_POST['itemCode'])) {
     global $dbs;
-    if (!$can_read) { die(); }
+    if (!$can_read) {
+        die();
+    }
 
     $codes = is_array($_POST['itemCode']) ? $_POST['itemCode'] : [$_POST['itemCode']];
     $added = 0;
@@ -131,7 +137,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'print') {
     // Load print settings
     require SB . 'admin' . DS . 'admin_template' . DS . 'printed_settings.inc.php';
     $custom = SB . 'admin' . DS . $sysconf['admin_template']['dir'] . DS . $sysconf['template']['theme'] . DS . 'printed_settings.inc.php';
-    if (file_exists($custom)) { include $custom; }
+    if (file_exists($custom)) {
+        include $custom;
+    }
     loadPrintSettings($dbs, 'label');
     loadPrintSettings($dbs, 'barcode');
 
@@ -152,113 +160,177 @@ if (isset($_GET['action']) && $_GET['action'] === 'print') {
     $cut = (int)($sysconf['print']['barcode']['barcode_cut_title'] ?? 40);
 
     ob_start();
-    ?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
-<title>Dual Label Print Result</title>
-<style>
-@page { size: 38mm 25mm; margin: 0; }
-html, body { margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.sticker {
-    width: 38mm; height: 25mm;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    box-sizing: border-box; overflow: hidden;
-    page-break-after: always; break-after: page;
-    page-break-inside: avoid; break-inside: avoid;
-}
-.sticker-header {
-    width: 100%; background-color: #CCCCCC; font-weight: bold; font-size: 6pt;
-    line-height: 1.2; padding: 5px 1mm 0.4mm 1mm; box-sizing: border-box;
-    text-align: center; flex-shrink: 0; margin-bottom: 2px;
-}
-.sticker-spine {
-    font-family: <?php echo $spine_fonts; ?>;
-    border: <?php echo $spine_border; ?>px solid #000;
-    padding: 0; justify-content: flex-start;
-}
-.spine-body {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    justify-content: flex-start; width: 100%; padding: 5px 1mm 0 1mm; box-sizing: border-box;
-}
-.spine-call-line {
-    font-size: 12pt; font-weight: bold; line-height: 1.15;
-    word-break: break-word; text-align: left; width: fit-content; min-width: 60%;
-}
-.sticker-barcode {
-    font-family: <?php echo $barcode_fonts; ?>;
-    border: <?php echo $barcode_border; ?>px solid #000;
-    padding: 0;
-}
-.barcode-title {
-    font-size: 6pt; line-height: 1.1; max-height: 2.4em; overflow: hidden;
-    width: 100%; padding: 5px 2mm 0 2mm; box-sizing: border-box;
-    text-align: center; flex-shrink: 0;
-}
-.barcode-img-wrap {
-    flex-shrink: 0; display: flex; align-items: flex-start; justify-content: center;
-    width: 100%; overflow: hidden; margin-top: 1px;
-}
-.barcode-img-wrap img {
-    width: <?php echo $barcode_scale; ?>%; max-height: 12mm; display: block;
-}
-</style>
-</head>
-<body>
-<?php
-    foreach ($_SESSION[$session_key] as $item) {
-        $title       = htmlspecialchars($item['title']       ?? '');
-        $call_number = htmlspecialchars($item['call_number'] ?? '');
-        $item_code   = htmlspecialchars($item['item_code']   ?? '');
+?>
+    <!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml">
 
-        $short_title = ($cut && strlen($title) > $cut) ? substr($title, 0, $cut) . '…' : $title;
-        $call_segments = explode(' ', preg_replace('/\s+/', ' ', trim($call_number)));
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+        <title>Dual Label Print Result</title>
+        <style>
+            @page {
+                size: 38mm 25mm;
+                margin: 0;
+            }
 
-        // ── Barcode generation using core barcode.php (old working method) ──
-        // Trigger barcode generation via JavaScript (saves PNG to images/barcodes/)
-        $bc_clean = str_replace([' ', '/', '\\', ':', ',', '*', '@'], ['_', '', '', '', '', '', ''], $item_code);
-        $bc_encoded = urlencode(urlencode($item_code));
-        $bc_url = SWB . IMG . '/barcodes/' . $bc_encoded . '.png?' . date('YmdHis');
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: #fff;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
 
-        // Output the JavaScript to generate the barcode image
-        echo '<script>
+            .sticker {
+                width: 38mm;
+                height: 25mm;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                box-sizing: border-box;
+                overflow: hidden;
+                page-break-after: always;
+                break-after: page;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .sticker-header {
+                width: 100%;
+                background-color: #CCCCCC;
+                font-weight: bold;
+                font-size: 6pt;
+                line-height: 1.2;
+                padding: 5px 1mm 0.4mm 1mm;
+                box-sizing: border-box;
+                text-align: center;
+                flex-shrink: 0;
+                margin-bottom: 2px;
+            }
+
+            .sticker-spine {
+                font-family: <?php echo $spine_fonts; ?>;
+                border: <?php echo $spine_border; ?>px solid #000;
+                padding: 0;
+                justify-content: flex-start;
+            }
+
+            .spine-body {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                width: 100%;
+                padding: 5px 1mm 0 1mm;
+                box-sizing: border-box;
+            }
+
+            .spine-call-line {
+                font-size: 12pt;
+                font-weight: bold;
+                line-height: 1.15;
+                word-break: break-word;
+                text-align: left;
+                width: fit-content;
+                min-width: 60%;
+            }
+
+            .sticker-barcode {
+                font-family: <?php echo $barcode_fonts; ?>;
+                border: <?php echo $barcode_border; ?>px solid #000;
+                padding: 0;
+            }
+
+            .barcode-title {
+                font-size: 6pt;
+                line-height: 1.1;
+                max-height: 2.4em;
+                overflow: hidden;
+                width: 100%;
+                padding: 5px 2mm 0 2mm;
+                box-sizing: border-box;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+            .barcode-img-wrap {
+                flex-shrink: 0;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                width: 100%;
+                overflow: hidden;
+                margin-top: 1px;
+            }
+
+            .barcode-img-wrap img {
+                width: <?php echo $barcode_scale; ?>%;
+                max-height: 12mm;
+                display: block;
+            }
+        </style>
+    </head>
+
+    <body>
+        <?php
+        foreach ($_SESSION[$session_key] as $item) {
+            $title       = htmlspecialchars($item['title']       ?? '');
+            $call_number = htmlspecialchars($item['call_number'] ?? '');
+            $item_code   = htmlspecialchars($item['item_code']   ?? '');
+
+            $short_title = ($cut && strlen($title) > $cut) ? substr($title, 0, $cut) . '…' : $title;
+            $call_segments = explode(' ', preg_replace('/\s+/', ' ', trim($call_number)));
+
+            // ── Barcode generation using core barcode.php (old working method) ──
+            // Trigger barcode generation via JavaScript (saves PNG to images/barcodes/)
+            $bc_clean = str_replace([' ', '/', '\\', ':', ',', '*', '@'], ['_', '', '', '', '', '', ''], $item_code);
+            $bc_encoded = urlencode(urlencode($item_code));
+            $bc_url = SWB . IMG . '/barcodes/' . $bc_encoded . '.png?' . date('YmdHis');
+
+            // Output the JavaScript to generate the barcode image
+            echo '<script>
         (function(){
             var i = new Image();
             i.src = "' . SWB . 'lib/phpbarcode/barcode.php?code=' . rawurlencode($item_code) . '&encoding=' . $barcode_encoding . '&scale=' . $barcode_size . '&mode=png&act=save";
         })();
         </script>' . "\n";
 
-        // ── Spine label ──────────────────────────────────────
-        echo '<div class="sticker sticker-spine">';
-        echo '<div class="sticker-header">' . $spine_header_text . '</div>';
-        echo '<div class="spine-body">';
-        foreach ($call_segments as $seg) {
-            echo '<div class="spine-call-line">' . htmlspecialchars($seg) . '</div>';
-        }
-        echo '</div>';
-        echo '</div>' . "\n";
+            // ── Spine label ──────────────────────────────────────
+            echo '<div class="sticker sticker-spine">';
+            echo '<div class="sticker-header">' . $spine_header_text . '</div>';
+            echo '<div class="spine-body">';
+            foreach ($call_segments as $seg) {
+                echo '<div class="spine-call-line">' . htmlspecialchars($seg) . '</div>';
+            }
+            echo '</div>';
+            echo '</div>' . "\n";
 
-        // ── Barcode label ────────────────────────────────────
-        echo '<div class="sticker sticker-barcode">';
-        echo '<div class="sticker-header">' . $barcode_header_text . '</div>';
-        echo '<div class="barcode-title">' . $short_title . '</div>';
-        echo '<div class="barcode-img-wrap">';
-        echo '<img src="' . $bc_url . '" alt="' . $item_code . '" />';
-        echo '</div>';
-        echo '</div>' . "\n";
-    }
-?>
-<script>
-// Give barcode PNGs a moment to be written to disk before printing
-window.onload = function() {
-    setTimeout(function() { self.print(); }, 1200);
-};
-</script>
-</body>
-</html>
+            // ── Barcode label ────────────────────────────────────
+            echo '<div class="sticker sticker-barcode">';
+            echo '<div class="sticker-header">' . $barcode_header_text . '</div>';
+            echo '<div class="barcode-title">' . $short_title . '</div>';
+            echo '<div class="barcode-img-wrap">';
+            echo '<img src="' . $bc_url . '" alt="' . $item_code . '" />';
+            echo '</div>';
+            echo '</div>' . "\n";
+        }
+        ?>
+        <script>
+            // Give barcode PNGs a moment to be written to disk before printing
+            window.onload = function() {
+                setTimeout(function() {
+                    self.print();
+                }, 1200);
+            };
+        </script>
+    </body>
+
+    </html>
 <?php
     $html_str = ob_get_clean();
 
@@ -313,34 +385,34 @@ window.onload = function() {
         <div class="sub_section">
             <div class="btn-group">
                 <a target="blindSubmit"
-                   href="<?php echo $_SERVER['PHP_SELF'] . '?' . dlp_http_query(['action' => 'clear']); ?>"
-                   class="btn btn-default notAJAX">
+                    href="<?php echo $_SERVER['PHP_SELF'] . '?' . dlp_http_query(['action' => 'clear']); ?>"
+                    class="btn btn-default notAJAX">
                     <?php echo __('Clear Print Queue'); ?>
                 </a>
-                
+
                 <!-- 🔧 FIX APPLIED: target="blindSubmit" allows the backend to return Colorbox JS correctly -->
                 <a target="blindSubmit"
-                   href="<?php echo $_SERVER['PHP_SELF'] . '?' . dlp_http_query(['action' => 'print']); ?>"
-                   class="btn btn-primary notAJAX">
+                    href="<?php echo $_SERVER['PHP_SELF'] . '?' . dlp_http_query(['action' => 'print']); ?>"
+                    class="btn btn-primary notAJAX">
                     <?php echo __('Print Dual Labels'); ?>
                 </a>
             </div>
 
             <form name="dlpSearch" id="dlpSearch" method="get"
-                  action="<?php echo $_SERVER['PHP_SELF'] . '?' . dlp_http_query(); ?>" class="form-inline" style="margin-top:8px;">
+                action="<?php echo $_SERVER['PHP_SELF'] . '?' . dlp_http_query(); ?>" class="form-inline" style="margin-top:8px;">
                 <?php echo __('Search by Accession No. / Title / Author'); ?>&nbsp;
                 <input type="text" name="keywords"
-                       value="<?php echo isset($_GET['keywords']) ? htmlspecialchars($_GET['keywords']) : ''; ?>"
-                       class="form-control col-md-3" />
+                    value="<?php echo isset($_GET['keywords']) ? htmlspecialchars($_GET['keywords']) : ''; ?>"
+                    class="form-control col-md-3" />
                 <input type="submit" value="<?php echo __('Search'); ?>"
-                       class="btn btn-default" />
+                    class="btn btn-default" />
             </form>
         </div>
 
         <div class="infoBox">
             <?php
             echo __('Maximum') . ' <strong class="text-danger">' . $max_print . '</strong> '
-               . __('items can be queued at once. Currently:') . ' ';
+                . __('items can be queued at once. Currently:') . ' ';
             echo '<strong id="dlpQueueCount" class="text-danger">' . dlp_queue_count() . '</strong>';
             echo ' ' . __('item(s) in queue.');
             ?>
@@ -421,11 +493,14 @@ $datagrid->chbox_form_URL      = $_SERVER['PHP_SELF'] . '?' . dlp_http_query();
 $result = $datagrid->createDataGrid($dbs, $table_spec, 20, $can_read);
 
 if (!empty($_GET['keywords'])) {
-    $msg = str_replace('{result->num_rows}', $datagrid->num_rows,
-                       __('Found <strong>{result->num_rows}</strong> from your keywords'));
+    $msg = str_replace(
+        '{result->num_rows}',
+        $datagrid->num_rows,
+        __('Found <strong>{result->num_rows}</strong> from your keywords')
+    );
     echo '<div class="infoBox">' . $msg . ' : "'
-       . htmlspecialchars($_GET['keywords']) . '"'
-       . '<div>' . __('Query took') . ' <b>' . $datagrid->query_time . '</b> ' . __('second(s)') . '</div></div>';
+        . htmlspecialchars($_GET['keywords']) . '"'
+        . '<div>' . __('Query took') . ' <b>' . $datagrid->query_time . '</b> ' . __('second(s)') . '</div></div>';
 }
 
 echo $result;
