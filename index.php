@@ -2,7 +2,7 @@
 
 /**
  * Dual Label Print - Apu
- *
+ * Version 1.0.1
  * Prints two stickers per item in a single print job:
  *   1. Spine label  : library name header + call number (38×25 mm)
  *   2. Barcode label: library name header + title + barcode image (38×25 mm)
@@ -389,6 +389,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'print') {
                     class="btn btn-default notAJAX">
                     <?php echo __('Clear Print Queue'); ?>
                 </a>
+
                 <!-- 🔧 FIX APPLIED: target="blindSubmit" allows the backend to return Colorbox JS correctly -->
                 <a target="blindSubmit"
                     href="<?php echo $_SERVER['PHP_SELF'] . '?' . dlp_http_query(['action' => 'print']); ?>"
